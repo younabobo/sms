@@ -16,7 +16,7 @@ export default function Payment(props) {
           dataIndex: "phoneNumber",
           key: "phone",
         },
-        { title: "Total", dataIndex: "toal", key: "total" },
+        { title: "Total", dataIndex: "total", key: "total" },
         {
           title: "Nombre de payements",
           dataIndex: "payementsNumber",
