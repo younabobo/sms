@@ -16,7 +16,7 @@ export default function Payment(props) {
         { title: "Quantité payée", dataIndex: "paidAmount", key: "paid" },
         { title: "Client", dataIndex: "clientId", key: "clientId" },
       ]}
-      title="Client"
+      title="Liste des paiements"
       route="/api/payements"
     />
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Table from "../components/Table";
 
 export default function Payment(props) {
@@ -23,7 +23,7 @@ export default function Payment(props) {
           key: "amountPayments",
         },
       ]}
-      title="Client"
+      title="Liste des clients"
       route="/api/clients"
     />
   );

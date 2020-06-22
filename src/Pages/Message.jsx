@@ -23,7 +23,7 @@ export default function Payment(props) {
           key: "clientName",
         },
       ]}
-      title="Client"
+      title="Liste des messages"
       route="/api/messages"
     />
   );
