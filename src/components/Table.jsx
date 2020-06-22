@@ -15,14 +15,23 @@ function Table({ route, columns, title, expandable }) {
   return (
     <TableComponent
       expandable={expandable}
-      dataSource={data}
+      dataSource={data.map((datum, index) => ({ ...datum, key: index }))}
       title={(data) => title}
       columns={columns}
     />
   );
 }
 
-Table.propTypes = {};
+Table.propTypes = {
+  title: PropTypes.string,
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      dataIndex: PropTypes.string,
+      key: PropTypes.string,
+    })
+  ),
+};
 
 Table.defaultProps = {
   title: "Table",

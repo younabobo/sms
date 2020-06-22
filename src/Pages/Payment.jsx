@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Params from "../Params";
+import React from "react";
 import Table from "../components/Table";
-const { url } = Params;
 
 export default function Payment(props) {
   return (

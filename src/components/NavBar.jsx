@@ -3,7 +3,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import { Menu } from "antd";
-const { SubMenu } = Menu;
 export default function NavBar({ routes }) {
   const location = useLocation();
   return (
