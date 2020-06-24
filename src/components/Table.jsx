@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Table as TableComponent } from "antd";
+import {
+  Table as TableComponent,
+  Form,
+  Input,
+  Button,
+  Tooltip,
+  Space,
+  Popover,
+  DatePicker,
+} from "antd";
 import Params from "../Params";
 import PropTypes from "prop-types";
 
-import { Input, Space, Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 const url = Params.url;
 
-function Table({ route, columns, title, expandable }) {
+function Table({ route, columns, title, expandable, insert, update, remove }) {
   let searchInput;
   const [state, setState] = useState({});
+  const [openCreateNew, setOpenCreateNew] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setState({
@@ -92,20 +106,151 @@ function Table({ route, columns, title, expandable }) {
       .then(setData)
       .catch(alert);
   }, []);
+
+  const submit = (data, method) =>
+    new Promise((resolve, reject) => {
+      fetch(url + (method === "insert" ? insert : update), {
+        method: "POST",
+        body: JSON.stringify(data),
+      })
+        .then(resolve)
+        .catch(reject);
+    });
+
+  const Formulaire = ({ method }) => (
+    <Form onFinish={(data) => submit(data, method)}>
+      {columns
+        .filter(({ input }) => input)
+        .map(({ title, required, type, dataIndex, maxLength }) => (
+          <Form.Item
+            label={title}
+            name={dataIndex}
+            rules={[
+              {
+                required,
+                message: "Ce champ est requis",
+              },
+            ]}
+          >
+            {type === "datetime" ? (
+              <DatePicker showTime />
+            ) : (
+              <Input type={type} maxLength={maxLength} />
+            )}
+          </Form.Item>
+        ))}
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Submit
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+
+  const onUpdate = (resource) =>
+    fetch(url + update, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(resource),
+    });
+  const onDelete = (resource) =>
+    fetch(url + remove, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(resource),
+    }).catch(console.log);
   return (
-    <TableComponent
-      expandable={expandable}
-      dataSource={data.map((datum, index) => ({ ...datum, key: index }))}
-      title={(data) => title}
-      columns={columns.map((column) => ({
-        ...column,
-        ...getColumnSearchProps(column.dataIndex),
-        sorter: {
-          compare: (a, b) =>
-            String(a[column.dataIndex]).localeCompare(b[column.dataIndex]),
-        },
-      }))}
-    />
+    <>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {insert && (
+          <div style={{ alignSelf: "flex-end", margin: 30 }}>
+            <Popover
+              content={<Formulaire method="insert" />}
+              title={
+                route.split("/").slice(-1)[0][0].toUpperCase() +
+                route.split("/").slice(-1)[0].slice(1, -1)
+              }
+              trigger="click"
+              visible={openCreateNew}
+              onVisibleChange={setOpenCreateNew}
+            >
+              <Button type="primary">
+                Nouveau{" "}
+                {route.split("/").slice(-1)[0][0].toUpperCase() +
+                  route.split("/").slice(-1)[0].slice(1, -1)}
+              </Button>
+            </Popover>
+          </div>
+        )}
+        <TableComponent
+          expandable={expandable}
+          dataSource={data.map((datum, index) => ({ ...datum, key: index }))}
+          title={(data) => title}
+          columns={columns
+            .map((column) => ({
+              ...column,
+              ...getColumnSearchProps(column.dataIndex),
+              sorter: {
+                compare: (a, b) =>
+                  String(a[column.dataIndex]).localeCompare(
+                    b[column.dataIndex]
+                  ),
+              },
+            }))
+            .concat(
+              [update, remove].filter((x) => x).length
+                ? [
+                    {
+                      title: "Action",
+                      key: "action",
+                      render: (text, record) => (
+                        <div>
+                          {update && (
+                            <Popover
+                              content={<Formulaire method="update" />}
+                              title={
+                                route.split("/").slice(-1)[0][0].toUpperCase() +
+                                route.split("/").slice(-1)[0].slice(1, -1)
+                              }
+                              trigger="click"
+                              visible={openEdit}
+                              onVisibleChange={setOpenEdit}
+                            >
+                              <Tooltip
+                                onClick={() => setOpenEdit(true)}
+                                placement="bottom"
+                                title="Modifier"
+                              >
+                                <Button>
+                                  <EditOutlined />
+                                </Button>
+                              </Tooltip>
+                            </Popover>
+                          )}
+                          {remove && (
+                            <Tooltip
+                              onClick={() => onDelete(record)}
+                              placement="bottom"
+                              title="Supprimer"
+                            >
+                              <Button>
+                                <DeleteOutlined />
+                              </Button>
+                            </Tooltip>
+                          )}
+                        </div>
+                      ),
+                    },
+                  ]
+                : []
+            )}
+        />
+      </div>
+    </>
   );
 }
 
