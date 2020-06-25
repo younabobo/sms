@@ -9,9 +9,10 @@ import {
   Popover,
   DatePicker,
 } from "antd";
+import { Dialog, CircularProgress } from "@material-ui/core";
 import Params from "../Params";
 import PropTypes from "prop-types";
-
+import TemplateInput from "./TemplateInput";
 import {
   SearchOutlined,
   EditOutlined,
@@ -21,10 +22,11 @@ import Highlighter from "react-highlight-words";
 const url = Params.url;
 
 function Table({ route, columns, title, expandable, insert, update, remove }) {
+  const [dialog, setDialog] = useState(false);
   let searchInput;
   const [state, setState] = useState({});
   const [openCreateNew, setOpenCreateNew] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
+  const [openEdit, setOpenEdit] = useState({});
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setState({
@@ -109,62 +111,95 @@ function Table({ route, columns, title, expandable, insert, update, remove }) {
 
   const submit = (data, method) =>
     new Promise((resolve, reject) => {
+      setDialog(true);
       fetch(url + (method === "insert" ? insert : update), {
+        headers: {
+          "Content-Type": "application/json",
+        },
         method: "POST",
         body: JSON.stringify(data),
       })
         .then(resolve)
         .catch(reject);
-    });
+    })
+      .then(() => setDialog(false))
+      .catch(() => setDialog(false));
 
-  const Formulaire = ({ method }) => (
-    <Form onFinish={(data) => submit(data, method)}>
-      {columns
-        .filter(({ input }) => input)
-        .map(({ title, required, type, dataIndex, maxLength }) => (
-          <Form.Item
-            label={title}
-            name={dataIndex}
-            rules={[
-              {
-                required,
-                message: "Ce champ est requis",
-              },
-            ]}
+  const Formulaire = ({ method, id, idKey }) => {
+    console.log(method, id, idKey);
+    const [data, setData] = useState({});
+    const handleInputChange = (index, value) =>
+      method === "update"
+        ? setData({ ...data, [index]: value, [idKey]: id })
+        : setData({ ...data, [index]: value });
+    const handleFinish = () => submit(data, method);
+    return (
+      <Form>
+        {columns
+          .filter(({ input }) => input)
+          .map(({ title, required, type, dataIndex, maxLength }) => (
+            <Form.Item
+              label={title}
+              name={dataIndex}
+              rules={[
+                {
+                  required,
+                  message: "Ce champ est requis",
+                },
+              ]}
+            >
+              {type === "datetime" ? (
+                <DatePicker
+                  showTime
+                  onChange={(val) =>
+                    handleInputChange(dataIndex, val.toISOString())
+                  }
+                />
+              ) : type === "template" ? (
+                <TemplateInput
+                  onChange={(val) => handleInputChange(dataIndex, val)}
+                />
+              ) : (
+                <Input
+                  type={type}
+                  maxLength={maxLength}
+                  onChange={({ target: { value: val } }) =>
+                    handleInputChange(dataIndex, val)
+                  }
+                />
+              )}
+            </Form.Item>
+          ))}
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            onClick={() => handleFinish()}
           >
-            {type === "datetime" ? (
-              <DatePicker showTime />
-            ) : (
-              <Input type={type} maxLength={maxLength} />
-            )}
-          </Form.Item>
-        ))}
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
-  );
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    );
+  };
 
-  const onUpdate = (resource) =>
-    fetch(url + update, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(resource),
-    });
-  const onDelete = (resource) =>
+  const onDelete = (resource) => {
+    setDialog(true);
     fetch(url + remove, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(resource),
-    }).catch(console.log);
+    })
+      .then(() => setDialog(false))
+      .catch(() => setDialog(false));
+  };
   return (
     <>
+      <Dialog open={dialog}>
+        <CircularProgress></CircularProgress>
+      </Dialog>
       <div style={{ display: "flex", flexDirection: "column" }}>
         {insert && (
           <div style={{ alignSelf: "flex-end", margin: 30 }}>
@@ -211,14 +246,28 @@ function Table({ route, columns, title, expandable, insert, update, remove }) {
                         <div>
                           {update && (
                             <Popover
-                              content={<Formulaire method="update" />}
+                              content={
+                                <Formulaire
+                                  method="update"
+                                  id={record[columns[0].dataIndex]}
+                                  idKey={columns[0].dataIndex}
+                                />
+                              }
                               title={
                                 route.split("/").slice(-1)[0][0].toUpperCase() +
                                 route.split("/").slice(-1)[0].slice(1, -1)
                               }
                               trigger="click"
-                              visible={openEdit}
-                              onVisibleChange={setOpenEdit}
+                              visible={openEdit[record.key]}
+                              onVisibleChange={(value) =>
+                                setOpenEdit({
+                                  ...Object.keys(openEdit).reduce(
+                                    (acc, curr) => ({ ...acc, [curr]: false }),
+                                    {}
+                                  ),
+                                  [record.key]: value,
+                                })
+                              }
                             >
                               <Tooltip
                                 onClick={() => setOpenEdit(true)}

@@ -1,5 +1,6 @@
 import React from "react";
 import Table from "../components/Table";
+import TemplateInput from "../components/TemplateInput";
 
 export default function Payment(props) {
   return (
@@ -35,6 +36,14 @@ export default function Payment(props) {
             title: "Nombre de payements",
             dataIndex: "payementsNumber",
             key: "amountPayments",
+            required: true,
+            type: "number",
+            input: false,
+          },
+          {
+            title: "Nombre de payements en retard",
+            dataIndex: "delayedPayementsNumber",
+            key: "amountDelayed",
             required: true,
             type: "number",
             input: false,

@@ -22,7 +22,7 @@ export default function Template() {
             dataIndex: "content",
             key: "content",
             required: true,
-            type: "text",
+            type: "template",
             input: true,
             maxLength: 250,
           },
