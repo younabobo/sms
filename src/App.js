@@ -6,6 +6,7 @@ import Payment from "./Pages/Payment";
 import Message from "./Pages/Message";
 import Template from "./Pages/Template";
 import NavBar from "./components/NavBar";
+import MessagesEnvoyes from "./Pages/MessagesEnvoyes.jsx";
 import { Dialog, CircularProgress } from "@material-ui/core";
 
 import {
@@ -13,6 +14,7 @@ import {
   MessageOutlined,
   MoneyCollectOutlined,
   BookOutlined,
+  ScheduleOutlined,
 } from "@ant-design/icons";
 import { Form, Button, Upload } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
@@ -92,6 +94,11 @@ function App() {
           { path: "/message", title: "Messages", icon: MessageOutlined },
           { path: "/payment", title: "Paiements", icon: MoneyCollectOutlined },
           { path: "/template", title: "Gabarit", icon: BookOutlined },
+          {
+            path: "/sent",
+            title: "Messages envoyés et planifiés",
+            icon: ScheduleOutlined,
+          },
         ]}
       />
       <Switch>
@@ -107,6 +114,9 @@ function App() {
         </Route>
         <Route path="/template">
           <Template />
+        </Route>
+        <Route path="/sent">
+          <MessagesEnvoyes />
         </Route>
       </Switch>
       <Demo />

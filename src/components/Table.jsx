@@ -20,11 +20,29 @@ import {
 } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 const url = Params.url;
+const defaultDate = `${new Date().getFullYear()}-${
+  new Date().getMonth() > 9
+    ? new Date().getMonth()
+    : "0" + String(new Date().getMonth())
+}-${
+  new Date().getDate() > 9
+    ? new Date().getDate()
+    : "0" + String(new Date().getDate())
+}`;
 
-function Table({ route, columns, title, expandable, insert, update, remove }) {
+function Table({
+  route,
+  columns,
+  title,
+  expandable,
+  insert,
+  update,
+  remove,
+  defaultFilters,
+}) {
   const [dialog, setDialog] = useState(false);
   let searchInput;
-  const [state, setState] = useState({});
+  const [state, setState] = useState(defaultFilters);
   const [openCreateNew, setOpenCreateNew] = useState(false);
   const [openEdit, setOpenEdit] = useState({});
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -122,12 +140,27 @@ function Table({ route, columns, title, expandable, insert, update, remove }) {
         .then(resolve)
         .catch(reject);
     })
+      .then((res) => {
+        if (res.status !== 200)
+          res
+            .text()
+            .then(JSON.parse)
+            .then(({ error }) => alert(error));
+        return res;
+      })
       .then(() => setDialog(false))
       .catch(() => setDialog(false));
 
   const Formulaire = ({ method, id, idKey }) => {
-    console.log(method, id, idKey);
-    const [data, setData] = useState({});
+    const defaultData = columns
+      .filter(({ input }) => input)
+      .reduce(
+        (acc, cur) =>
+          cur.type === "date" ? { ...acc, [cur.dataIndex]: defaultDate } : acc,
+        {}
+      );
+    const [data, setData] = useState(defaultData);
+
     const handleInputChange = (index, value) =>
       method === "update"
         ? setData({ ...data, [index]: value, [idKey]: id })
@@ -148,12 +181,15 @@ function Table({ route, columns, title, expandable, insert, update, remove }) {
                 },
               ]}
             >
-              {type === "datetime" ? (
-                <DatePicker
+              {type === "date" ? (
+                <Input
+                  type="date"
                   showTime
-                  onChange={(val) =>
-                    handleInputChange(dataIndex, val.toISOString())
-                  }
+                  onChange={(e) => {
+                    e.persist();
+                    handleInputChange(dataIndex, e.target.value);
+                  }}
+                  defaultValue={defaultDate}
                 />
               ) : type === "template" ? (
                 <TemplateInput
@@ -192,6 +228,14 @@ function Table({ route, columns, title, expandable, insert, update, remove }) {
       },
       body: JSON.stringify(resource),
     })
+      .then(
+        (res) =>
+          res.status !== 200 &&
+          res
+            .text()
+            .then(JSON.parse)
+            .then(({ error }) => alert(error))
+      )
       .then(() => setDialog(false))
       .catch(() => setDialog(false));
   };
@@ -202,7 +246,14 @@ function Table({ route, columns, title, expandable, insert, update, remove }) {
       </Dialog>
       <div style={{ display: "flex", flexDirection: "column" }}>
         {insert && (
-          <div style={{ alignSelf: "flex-end", margin: 30 }}>
+          <div
+            style={{
+              alignSelf: "flex-end",
+              marginTop: 10,
+              marginBottom: 5,
+              marginRight: 30,
+            }}
+          >
             <Popover
               content={<Formulaire method="insert" />}
               title={
@@ -222,6 +273,7 @@ function Table({ route, columns, title, expandable, insert, update, remove }) {
           </div>
         )}
         <TableComponent
+          size="small"
           expandable={expandable}
           dataSource={data.map((datum, index) => ({ ...datum, key: index }))}
           title={(data) => title}
@@ -317,6 +369,7 @@ Table.propTypes = {
 Table.defaultProps = {
   title: "Table",
   expandable: undefined,
+  defaultFilters: {},
 };
 
 export default Table;

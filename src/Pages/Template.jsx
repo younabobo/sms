@@ -18,6 +18,15 @@ export default function Template() {
             key: "id",
           },
           {
+            title: "Nom",
+            dataIndex: "designation",
+            key: "designation",
+            required: true,
+            type: "text",
+            input: true,
+            maxLength: 250,
+          },
+          {
             title: "Contenu",
             dataIndex: "content",
             key: "content",

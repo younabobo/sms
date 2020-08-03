@@ -1,9 +1,10 @@
 import React from "react";
 import Table from "../components/Table";
 
-export default function Payment(props) {
+export default function Payment({ defaultFilters }) {
   return (
     <Table
+      defaultFilters={defaultFilters}
       columns={[
         {
           title: "Numero",
@@ -18,7 +19,7 @@ export default function Payment(props) {
           dataIndex: "scheduleTime",
           key: "time",
           required: true,
-          type: "datetime",
+          type: "date",
           input: true,
         },
         {

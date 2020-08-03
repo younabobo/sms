@@ -14,7 +14,8 @@ export default function Payment(props) {
         { title: "Etat", dataIndex: "state", key: "state" },
         { title: "Quantité", dataIndex: "amount", key: "amount" },
         { title: "Quantité payée", dataIndex: "paidAmount", key: "paid" },
-        { title: "Client", dataIndex: "clientId", key: "clientId" },
+        { title: "Numéro Client", dataIndex: "clientId", key: "clientId" },
+        { title: "Nom Client", dataIndex: "clientName", key: "clientName" },
       ]}
       title="Liste des paiements"
       route="/api/payements"
