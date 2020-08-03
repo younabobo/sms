@@ -21,9 +21,9 @@ import {
 import Highlighter from "react-highlight-words";
 const url = Params.url;
 const defaultDate = `${new Date().getFullYear()}-${
-  new Date().getMonth() > 9
-    ? new Date().getMonth()
-    : "0" + String(new Date().getMonth())
+  new Date().getMonth() + 1 > 9
+    ? new Date().getMonth() + 1
+    : "0" + String(new Date().getMonth() + 1)
 }-${
   new Date().getDate() > 9
     ? new Date().getDate()
@@ -39,6 +39,7 @@ function Table({
   update,
   remove,
   defaultFilters,
+  CustomInsert,
 }) {
   const [dialog, setDialog] = useState(false);
   let searchInput;
@@ -149,6 +150,7 @@ function Table({
         return res;
       })
       .then(() => setDialog(false))
+      .then(() => document.location.reload())
       .catch(() => setDialog(false));
 
   const Formulaire = ({ method, id, idKey }) => {
@@ -166,7 +168,9 @@ function Table({
         ? setData({ ...data, [index]: value, [idKey]: id })
         : setData({ ...data, [index]: value });
     const handleFinish = () => submit(data, method);
-    return (
+    return CustomInsert && method === "insert" ? (
+      <CustomInsert />
+    ) : (
       <Form>
         {columns
           .filter(({ input }) => input)
@@ -184,7 +188,6 @@ function Table({
               {type === "date" ? (
                 <Input
                   type="date"
-                  showTime
                   onChange={(e) => {
                     e.persist();
                     handleInputChange(dataIndex, e.target.value);
@@ -237,6 +240,7 @@ function Table({
             .then(({ error }) => alert(error))
       )
       .then(() => setDialog(false))
+      .then(() => document.location.reload())
       .catch(() => setDialog(false));
   };
   return (
@@ -370,6 +374,7 @@ Table.defaultProps = {
   title: "Table",
   expandable: undefined,
   defaultFilters: {},
+  CustomInsert: null,
 };
 
 export default Table;

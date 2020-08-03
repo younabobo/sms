@@ -46,6 +46,7 @@ const Demo = () => {
       },
     })
       .then(() => setDialog(false))
+      .then(() => document.location.reload())
       .catch(() => setDialog(false));
   };
 
@@ -96,7 +97,7 @@ function App() {
           { path: "/template", title: "Gabarit", icon: BookOutlined },
           {
             path: "/sent",
-            title: "Messages envoyés et planifiés",
+            title: "Messages planifiés",
             icon: ScheduleOutlined,
           },
         ]}

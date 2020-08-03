@@ -1,4 +1,4 @@
 const data = {
-  url: "http://localhost:8081",
+  url: "",
 };
 export default data;
