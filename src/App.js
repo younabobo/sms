@@ -26,26 +26,22 @@ const formItemLayout = {
   wrapperCol: { span: 14 },
 };
 
-const normFile = (e) => {
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e && e.fileList;
-};
-
 const Demo = () => {
   const [dialog, setDialog] = useState(false);
-  const onFinish = (values) => {
-    setDialog(true);
-    const fd = new FormData();
-    fd.set("xlsx-file", values.dragger[0]);
-    fetch(url + "/api/update-commercials", {
-      body: fd,
-      method: "POST",
-    })
-      .then(() => setDialog(false))
-      .then(() => document.location.reload())
-      .catch(() => setDialog(false));
+  const [error, setError] = useState(false);
+
+  const normFile = (e) => {
+    if (Object.keys(e).includes("event")) setDialog(true);
+    else setDialog(false);
+    if (e.file.status !== "done") setError(e.file.response);
+    else {
+      setError(false);
+      document.location.reload();
+    }
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
   };
 
   return (
@@ -53,7 +49,7 @@ const Demo = () => {
       <Dialog open={dialog}>
         <CircularProgress></CircularProgress>
       </Dialog>
-      <Form name="validate_other" {...formItemLayout} onFinish={onFinish}>
+      <Form name="validate_other" {...formItemLayout}>
         <Form.Item label="Dragger">
           <Form.Item
             name="dragger"
@@ -75,12 +71,7 @@ const Demo = () => {
             </Upload.Dragger>
           </Form.Item>
         </Form.Item>
-
-        <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
+        {error && <p style={{ color: "red" }}>{JSON.stringify(error)}</p>}
       </Form>
     </>
   );
