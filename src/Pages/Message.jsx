@@ -45,7 +45,7 @@ export default function Payment({ defaultFilters }) {
             (Object.keys(data).includes("xlsx-file") ? "s" : ""),
           {
             method: "POST",
-            body: fd,
+            body: Object.keys(data).includes('clientId') ? JSON.stringify(data) : fd,
           }
         )
           .then((res) => res.json())
