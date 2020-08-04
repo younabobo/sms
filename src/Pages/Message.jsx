@@ -48,7 +48,7 @@ export default function Payment({ defaultFilters }) {
           url +
             "/api/schedule-message" +
             (Object.keys(data).includes("xlsx-file") ? "s" : ""),
-          
+          req
         )
           .then((res) => res.json())
           .then((res) => setRedirect("/sent"));
