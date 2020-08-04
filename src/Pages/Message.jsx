@@ -39,14 +39,16 @@ export default function Payment({ defaultFilters }) {
         Object.keys(data).forEach((key) => {
           fd.append(key, data[key]);
         });
+        const req = {
+            method: "POST",
+            body: Object.keys(data).includes('clientId') ? JSON.stringify(data) : fd,
+          }
+        if (Object.keys(data.includes('clientId') req.headers = { 'Content-Type': 'application/json' }
         fetch(
           url +
             "/api/schedule-message" +
             (Object.keys(data).includes("xlsx-file") ? "s" : ""),
-          {
-            method: "POST",
-            body: Object.keys(data).includes('clientId') ? JSON.stringify(data) : fd,
-          }
+          
         )
           .then((res) => res.json())
           .then((res) => setRedirect("/sent"));
