@@ -40,10 +40,14 @@ export default function Payment({ defaultFilters }) {
           fd.append(key, data[key]);
         });
         const req = {
-            method: "POST",
-            body: Object.keys(data).includes('clientId') ? JSON.stringify(data) : fd,
-          }
-        if (Object.keys(data.includes('clientId') req.headers = { 'Content-Type': 'application/json' }
+          method: "POST",
+          body: Object.keys(data).includes("clientId")
+            ? JSON.stringify(data)
+            : fd,
+        };
+        if (Object.keys(data).includes("clientId")) {
+          req.headers = { "Content-Type": "application/json" };
+        }
         fetch(
           url +
             "/api/schedule-message" +
