@@ -27,7 +27,6 @@ const formItemLayout = {
 };
 
 const normFile = (e) => {
-  console.log("Upload event:", e);
   if (Array.isArray(e)) {
     return e;
   }
@@ -38,12 +37,11 @@ const Demo = () => {
   const [dialog, setDialog] = useState(false);
   const onFinish = (values) => {
     setDialog(true);
+    const fd = new FormData();
+    fd.set("xlsx-file", values.dragger[0]);
     fetch(url + "/api/update-commercials", {
-      body: values.dragger.file,
+      body: fd,
       method: "POST",
-      headers: {
-        "Content-Type": "application/octet-stream",
-      },
     })
       .then(() => setDialog(false))
       .then(() => document.location.reload())
@@ -62,8 +60,9 @@ const Demo = () => {
             valuePropName="fileList"
             getValueFromEvent={normFile}
             noStyle
+            rules={[{ required: true }]}
           >
-            <Upload.Dragger name="files" action="/upload.do">
+            <Upload.Dragger name="xlsx-file" action="/api/update-commercials">
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
               </p>
