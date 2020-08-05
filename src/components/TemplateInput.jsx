@@ -48,7 +48,12 @@ export default function TemplateInput({ onChange, maxLength, type }) {
   }, [value]);
   return (
     <>
-      <Input type={type} value={value} onChange={handleChange} />
+      <Input.TextArea
+        autoSize
+        type={type}
+        value={value}
+        onChange={handleChange}
+      />
       <div id="addons">
         {addons.map(({ id, label }) => (
           <Button onClick={() => addField(id)}>{label}</Button>

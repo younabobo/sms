@@ -102,17 +102,15 @@ export default function Payment({ defaultFilters }) {
               }
             }}
           />
-          <Upload
+          <Input
+            type="file"
             disabled={Object.keys(data).includes("clientId")}
-            beforeUpload={(file) => {
-              setData({ ...data, "xlsx-file": file });
-              return false;
+            onChange={(e) => {
+              e.persist();
+              setData({ ...data, "xlsx-file": e.target.files[0] });
+              console.log(e.target.files[0]);
             }}
-          >
-            <Button>
-              <UploadOutlined /> Fichier excel
-            </Button>
-          </Upload>
+          />
         </Form.Item>
         <Form.Item
           label="Numero gabarit"
